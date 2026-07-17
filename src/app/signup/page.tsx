@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'customer' | 'manager'>('customer');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +20,7 @@ export default function SignupPage() {
     setError('');
     setLoading(true);
 
-    const result = await signup(name, email, password);
+    const result = await signup(name, email, password, role);
     if (result.error) {
       setError(result.error);
       setLoading(false);
@@ -92,6 +93,18 @@ export default function SignupPage() {
                 placeholder="Min. 6 characters"
                 autoComplete="new-password"
               />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Register As</label>
+              <select
+                id="signup-role"
+                className="form-input"
+                value={role}
+                onChange={(e) => setRole(e.target.value as 'customer' | 'manager')}
+              >
+                <option value="customer">👤 Customer — Track my orders</option>
+                <option value="manager">🛡️ Manager — Manage & create orders</option>
+              </select>
             </div>
             <button type="submit" className="btn-primary btn-full" disabled={loading}>
               {loading ? 'Creating Account...' : 'Create Account →'}

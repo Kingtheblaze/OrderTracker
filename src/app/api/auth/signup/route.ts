@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     await dbConnect();
     const body = await request.json();
-    const { name, email, password } = body;
+    const { name, email, password, role } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
@@ -25,11 +25,14 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    const validRoles = ['customer', 'manager'];
+    const userRole = validRoles.includes(role) ? role : 'customer';
+
     const user = await User.create({
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
-      role: 'customer'
+      role: userRole
     });
 
     const token = signToken({
@@ -52,8 +55,9 @@ export async function POST(request: Request) {
     });
 
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Signup error:', error);
-    return NextResponse.json({ error: 'Failed to create account' }, { status: 500 });
+    const message = error?.message || 'Failed to create account';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
